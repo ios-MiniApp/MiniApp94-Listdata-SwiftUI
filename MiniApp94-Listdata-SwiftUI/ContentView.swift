@@ -8,14 +8,46 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var testViewModel = TestViewModel()
+
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        List {
+            TextField("new Value", text: $testViewModel.testModel.inputValue)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+
+            Button(action: {
+                self.testViewModel.addValue()
+            }, label: {
+                Text("追加")
+            })
+
+            ForEach(self.testViewModel.testModel.valueList) { valueModel in
+                Text(valueModel.value)
+            }
+        }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+class TestViewModel : ObservableObject {
+    @Published var testModel: TestModel = TestModel()
+
+    func addValue() {
+        let newTestModel = ValueModel(value: self.testModel.inputValue)
+        self.testModel.valueList.append(newTestModel)
     }
 }
+
+struct TestModel {
+    var inputValue: String = ""
+    var valueList: [ValueModel] = []
+}
+
+struct ValueModel: Identifiable {
+    let id = UUID()
+    var value: String
+
+    init(value: String) {
+        self.value = value
+    }
+}
+
